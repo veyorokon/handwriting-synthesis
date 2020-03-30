@@ -38,7 +38,7 @@ class Hand(object):
         )
         self.nn.restore()
 
-    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None):
+    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, save=False):
         valid_char_set = set(drawing.alphabet)
         for line_num, line in enumerate(lines):
             if len(line) > 75:
@@ -59,7 +59,7 @@ class Hand(object):
                     )
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        return self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, save=save)
 
     def _sample(self, lines, biases=None, styles=None):
         num_samples = len(lines)
@@ -107,7 +107,7 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None):
+    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, save=False):
         stroke_colors = stroke_colors or ['black']*len(lines)
         stroke_widths = stroke_widths or [2]*len(lines)
 
@@ -145,8 +145,9 @@ class Hand(object):
             dwg.add(path)
 
             initial_coord[1] -= line_height
-
-        dwg.save()
+        if save:
+            dwg.save()
+        return dwg
 
 
 if __name__ == '__main__':
